@@ -1,0 +1,1237 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ключи — интерактивный прототип</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Golos+Text:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --color-brand: #2c5deb;
+    --color-brand-hover: #224ec8;
+    --color-brand-line: #d8e2ff;
+    --color-ink: #1c2841;
+    --color-muted: #6c7790;
+    --color-line: #e8ecf4;
+    --color-card: #ffffff;
+    --color-surface: #f5f7fb;
+    --color-danger: #bc3544;
+    --color-on-brand: #ffffff;
+    --ui-control-height: 48px;
+    --ui-field-radius: 14px;
+    --font-sans: 'Golos Text', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  }
+
+  * {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    font-family: var(--font-sans);
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  body {
+    background-color: #eef2f8;
+    color: var(--color-ink);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 12px 10px 30px;
+  }
+
+  /* Верхний тулбар прототипа */
+  .proto-toolbar {
+    width: 100%;
+    max-width: 820px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 12px;
+    padding: 4px 6px;
+    font-size: 13px;
+  }
+
+  .proto-controls-left, .proto-controls-right {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+
+  .proto-dropdown-btn {
+    background: #ffffff;
+    border: 1px solid var(--color-line);
+    border-radius: 999px;
+    padding: 7px 14px;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--color-ink);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.03);
+    transition: background 0.15s;
+  }
+
+  .proto-dropdown-btn:hover {
+    background: #f8fafc;
+  }
+
+  .proto-dropdown-btn svg {
+    width: 15px;
+    height: 15px;
+    color: var(--color-muted);
+  }
+
+  .proto-segmented {
+    background: #e2e8f0;
+    border-radius: 999px;
+    padding: 3px;
+    display: flex;
+    gap: 2px;
+  }
+
+  .proto-seg-btn {
+    border: none;
+    background: transparent;
+    border-radius: 999px;
+    padding: 5px 12px;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--color-muted);
+    cursor: pointer;
+  }
+
+  .proto-seg-btn.active {
+    background: #ffffff;
+    color: var(--color-ink);
+    box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+  }
+
+  .proto-demo-note {
+    font-size: 12px;
+    color: var(--color-muted);
+    text-align: center;
+    margin-bottom: 8px;
+    min-height: 18px;
+  }
+
+  /* Мобильный телефон */
+  .mobile-device-frame {
+    width: 390px;
+    max-width: 100%;
+    height: 844px;
+    background: #ffffff;
+    border: 1px solid #d9dce1;
+    border-radius: 34px;
+    box-shadow: 0 24px 70px rgba(28, 40, 65, 0.15);
+    overflow: hidden;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* Статусная строка смартфона */
+  .device-status-bar {
+    height: 44px;
+    padding: 14px 24px 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--color-ink);
+    z-index: 10;
+    flex-shrink: 0;
+    background: transparent;
+  }
+
+  .status-indicators {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 11px;
+  }
+
+  /* Скролл-контейнер экранов */
+  .phone-screen-container {
+    flex-grow: 1;
+    overflow-y: auto;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .phone-screen-container::-webkit-scrollbar {
+    display: none;
+  }
+
+  /* ЭКРАН 1: АВТОРИЗАЦИЯ ПО ТЕЛЕФОНУ */
+  .auth-view {
+    display: flex;
+    flex-direction: column;
+    min-height: 100%;
+    padding: 10px 24px 28px;
+  }
+
+  .auth-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    min-height: 48px;
+  }
+
+  .auth-brand-logo {
+    font-size: 26px;
+    line-height: 1;
+    font-weight: 600;
+    letter-spacing: -1.2px;
+    color: var(--color-brand);
+  }
+
+  .auth-header-title {
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--color-ink);
+  }
+
+  .auth-back-btn {
+    width: 38px;
+    height: 38px;
+    display: grid;
+    place-items: center;
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    margin-left: -8px;
+    color: var(--color-ink);
+    border-radius: 50%;
+  }
+
+  .auth-main-content {
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
+    margin-top: 10px;
+  }
+
+  .auth-intro h1 {
+    font-size: 28px;
+    line-height: 34px;
+    font-weight: 600;
+    letter-spacing: -0.6px;
+    color: var(--color-ink);
+  }
+
+  .auth-intro p {
+    font-size: 14px;
+    line-height: 20px;
+    color: var(--color-muted);
+    margin-top: 6px;
+  }
+
+  /* Арт-лента путешествий */
+  .auth-art-box {
+    flex-grow: 1;
+    min-height: 180px;
+    max-height: 330px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    margin: 8px -24px;
+    overflow: hidden;
+  }
+
+  .auth-art-svg {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    animation: ribbonFloat 4s ease-in-out infinite alternate;
+  }
+
+  @keyframes ribbonFloat {
+    0% { transform: translateY(0) scale(0.98); }
+    100% { transform: translateY(-6px) scale(1.02); }
+  }
+
+  .auth-caption {
+    font-size: 14px;
+    color: var(--color-muted);
+    margin-bottom: 14px;
+  }
+
+  /* Поля ввода и кнопки */
+  .auth-form {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .auth-form label {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--color-ink);
+  }
+
+  .auth-input-field {
+    width: 100%;
+    height: var(--ui-control-height);
+    padding: 12px 16px;
+    border: 1px solid var(--color-line);
+    border-radius: var(--ui-field-radius);
+    background: #ffffff;
+    color: var(--color-ink);
+    font-size: 16px;
+    outline: none;
+    transition: border-color 0.15s, box-shadow 0.15s;
+  }
+
+  .auth-input-field:focus {
+    border-color: var(--color-brand);
+    box-shadow: 0 0 0 3px rgba(44, 93, 235, 0.12);
+  }
+
+  .auth-input-field.error {
+    border-color: var(--color-danger);
+  }
+
+  .auth-error-msg {
+    color: var(--color-danger);
+    font-size: 12px;
+    min-height: 16px;
+    margin-top: -2px;
+  }
+
+  .auth-btn-primary {
+    min-height: var(--ui-control-height);
+    width: 100%;
+    padding: 12px 16px;
+    border: none;
+    border-radius: var(--ui-field-radius);
+    color: var(--color-on-brand);
+    background: var(--color-brand);
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.15s, transform 0.1s;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .auth-btn-primary:hover {
+    background: var(--color-brand-hover);
+  }
+
+  .auth-btn-primary:active {
+    transform: scale(0.985);
+  }
+
+  .auth-hint-sub {
+    font-size: 12px;
+    color: var(--color-muted);
+    text-align: center;
+    margin-top: 10px;
+  }
+
+  /* ЭКРАН 2: ВВОД СМС-КОДА */
+  .auth-phone-preview {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: var(--color-surface);
+    padding: 10px 14px;
+    border-radius: 12px;
+    margin-top: 12px;
+  }
+
+  .auth-phone-preview strong {
+    font-size: 15px;
+    font-weight: 600;
+  }
+
+  .auth-link-btn {
+    border: none;
+    background: transparent;
+    color: var(--color-brand);
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+  }
+
+  .otp-grid {
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    gap: 8px;
+    margin: 16px 0 10px;
+  }
+
+  .otp-digit {
+    width: 100%;
+    height: 52px;
+    border: 1px solid var(--color-line);
+    border-radius: var(--ui-field-radius);
+    background: #ffffff;
+    text-align: center;
+    font-size: 24px;
+    font-weight: 600;
+    color: var(--color-ink);
+    outline: none;
+  }
+
+  .otp-digit:focus {
+    border-color: var(--color-brand);
+    box-shadow: 0 0 0 3px rgba(44, 93, 235, 0.12);
+  }
+
+  .auth-resend-btn {
+    border: none;
+    background: transparent;
+    color: var(--color-brand);
+    font-size: 13px;
+    font-weight: 500;
+    padding: 10px 0;
+    cursor: pointer;
+    text-align: center;
+    margin-top: 6px;
+  }
+
+  .auth-resend-btn:disabled {
+    color: var(--color-muted);
+    cursor: default;
+  }
+
+  /* ЭКРАН 4: ГЛАВНАЯ СТРАНИЦА ПОСЛЕ АВТОРИЗАЦИИ */
+  .home-view {
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
+    background: #f7f7f5;
+  }
+
+  .home-scroll-area {
+    flex-grow: 1;
+    overflow-y: auto;
+    padding: 8px 16px 90px;
+  }
+
+  .home-scroll-area::-webkit-scrollbar {
+    display: none;
+  }
+
+  /* Шапка внутри приложения */
+  .home-top-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 14px;
+    padding-top: 4px;
+  }
+
+  .home-logo {
+    font-size: 26px;
+    font-weight: 600;
+    letter-spacing: -1.2px;
+    color: var(--color-brand);
+    border: none;
+    background: transparent;
+    cursor: pointer;
+  }
+
+  .home-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .icon-circle-btn {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    border: 1px solid var(--color-line);
+    background: #ffffff;
+    display: grid;
+    place-items: center;
+    cursor: pointer;
+    color: var(--color-ink);
+  }
+
+  .icon-circle-btn svg {
+    width: 19px;
+    height: 19px;
+  }
+
+  .home-avatar-btn {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    border: none;
+    background: #e4eafe;
+    color: var(--color-brand);
+    font-weight: 700;
+    font-size: 15px;
+    display: grid;
+    place-items: center;
+    cursor: pointer;
+  }
+
+  /* Заголовок "Куда отправимся?" */
+  .home-greeting-lead {
+    font-size: 13px;
+    color: var(--color-muted);
+    font-weight: 500;
+    margin-bottom: 2px;
+  }
+
+  .home-greeting-h1 {
+    font-size: 28px;
+    line-height: 34px;
+    font-weight: 700;
+    letter-spacing: -0.6px;
+    color: var(--color-ink);
+    margin-bottom: 16px;
+  }
+
+  /* Карточка "За новыми впечатлениями" */
+  .card-inspiration {
+    background: #ffffff;
+    border-radius: 20px;
+    padding: 18px 16px;
+    box-shadow: 0 4px 16px rgba(15, 23, 42, 0.04);
+    margin-bottom: 14px;
+  }
+
+  .card-insp-title {
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--color-ink);
+    margin-bottom: 14px;
+  }
+
+  .visual-postcards {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 14px;
+  }
+
+  .postcard-item {
+    flex: 1;
+    height: 110px;
+    border-radius: 14px;
+    overflow: hidden;
+    position: relative;
+    background-size: cover;
+    background-position: center;
+    display: flex;
+    align-items: flex-end;
+    padding: 10px;
+  }
+
+  .postcard-sea {
+    background-image: linear-gradient(180deg, rgba(0,0,0,0.05) 0%, rgba(0,0,0,0.65) 100%), url('https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=400&q=80');
+  }
+
+  .postcard-city {
+    background-image: linear-gradient(180deg, rgba(0,0,0,0.05) 0%, rgba(0,0,0,0.65) 100%), url('https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?auto=format&fit=crop&w=400&q=80');
+  }
+
+  .postcard-item span {
+    color: #ffffff;
+    font-size: 13px;
+    font-weight: 600;
+    text-shadow: 0 1px 3px rgba(0,0,0,0.5);
+  }
+
+  .insp-bottom-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 10px;
+  }
+
+  .insp-desc {
+    font-size: 12px;
+    line-height: 16px;
+    color: var(--color-muted);
+  }
+
+  .btn-find-hotel {
+    background: var(--color-brand);
+    color: #ffffff;
+    border: none;
+    border-radius: 12px;
+    padding: 9px 14px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  /* Реферальная карточка */
+  .card-referral {
+    background: #ffffff;
+    border-radius: 20px;
+    padding: 16px;
+    box-shadow: 0 4px 16px rgba(15, 23, 42, 0.04);
+    margin-bottom: 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    cursor: pointer;
+  }
+
+  .referral-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .ref-copy strong {
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--color-ink);
+    display: block;
+    margin-bottom: 2px;
+  }
+
+  .ref-copy span {
+    font-size: 13px;
+    color: var(--color-muted);
+    line-height: 17px;
+  }
+
+  .ref-art-circles {
+    width: 60px;
+    height: 60px;
+    flex-shrink: 0;
+  }
+
+  .ref-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--color-brand);
+    border-top: 1px solid var(--color-line);
+    padding-top: 10px;
+  }
+
+  /* Карточка "Двойная выгода" */
+  .card-double-benefits {
+    background: #ffffff;
+    border-radius: 20px;
+    padding: 16px;
+    box-shadow: 0 4px 16px rgba(15, 23, 42, 0.04);
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    cursor: pointer;
+  }
+
+  .benefits-heading {
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--color-ink);
+  }
+
+  .benefit-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+  }
+
+  .benefit-icon-box {
+    width: 36px;
+    height: 36px;
+    border-radius: 10px;
+    background: var(--color-surface);
+    display: grid;
+    place-items: center;
+    color: var(--color-brand);
+    flex-shrink: 0;
+  }
+
+  .benefit-copy strong {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--color-ink);
+    display: block;
+  }
+
+  .benefit-copy span {
+    font-size: 12px;
+    color: var(--color-muted);
+    line-height: 16px;
+  }
+
+  .benefits-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--color-brand);
+    border-top: 1px solid var(--color-line);
+    padding-top: 10px;
+  }
+
+  /* Нижняя панель навигации (таббар) */
+  .bottom-nav-bar {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 72px;
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(20px);
+    border-top: 1px solid var(--color-line);
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    padding: 0 8px 12px;
+    z-index: 20;
+  }
+
+  .nav-tab-btn {
+    border: none;
+    background: transparent;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    font-size: 11px;
+    font-weight: 500;
+    color: var(--color-muted);
+    cursor: pointer;
+    flex: 1;
+  }
+
+  .nav-tab-btn svg {
+    width: 22px;
+    height: 22px;
+  }
+
+  .nav-tab-btn.active {
+    color: var(--color-brand);
+  }
+
+  /* Тост-уведомление */
+  .app-toast-bubble {
+    position: absolute;
+    bottom: 84px;
+    left: 50%;
+    transform: translateX(-50%) translateY(20px);
+    background: rgba(28, 40, 65, 0.9);
+    color: #ffffff;
+    font-size: 12px;
+    font-weight: 500;
+    padding: 8px 16px;
+    border-radius: 999px;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+    opacity: 0;
+    pointer-events: none;
+    transition: all 0.25s ease;
+    z-index: 50;
+    white-space: nowrap;
+  }
+
+  .app-toast-bubble.show {
+    transform: translateX(-50%) translateY(0);
+    opacity: 1;
+  }
+</style>
+</head>
+<body>
+
+<!-- Панель управления сценарием (как в оригинале прототипа) -->
+<header class="proto-toolbar">
+  <div class="proto-controls-left">
+    <button class="proto-dropdown-btn" type="button" title="Вариант оформления">
+      <span>Вариант Базовый</span>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m6 9 6 6 6-6"/></svg>
+    </button>
+    <button class="proto-dropdown-btn" id="scenarioToggleBtn" type="button" onclick="resetToGuestScenario()" title="Выбор сценария">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 7h7m4 0h5M4 17h2m4 0h10"/><circle cx="13" cy="7" r="2"/><circle cx="8" cy="17" r="2"/></svg>
+      <span id="currentScenarioLabel">Гость не авторизован</span>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m6 9 6 6 6-6"/></svg>
+    </button>
+  </div>
+  <div class="proto-controls-right">
+    <div class="proto-segmented" role="group">
+      <button class="proto-seg-btn" disabled>Десктоп</button>
+      <button class="proto-seg-btn active">Мобильная</button>
+    </div>
+  </div>
+</header>
+
+<div class="proto-demo-note" id="protoDemoNote"></div>
+
+<!-- Корпус мобильного устройства (iPhone) -->
+<main class="mobile-device-frame">
+  <!-- Статусная строка -->
+  <div class="device-status-bar">
+    <span>9:41</span>
+    <div class="status-indicators">
+      <span>●</span>
+      <span>◔</span>
+      <span>▰</span>
+    </div>
+  </div>
+
+  <!-- Контейнер экранов -->
+  <div class="phone-screen-container" id="phoneContainer">
+    <!-- Шаги рендерятся через JavaScript -->
+  </div>
+
+  <!-- Всплывающий тост внутри приложения -->
+  <div class="app-toast-bubble" id="appToast">Вы в разделе «Поездки»</div>
+</main>
+
+<script>
+  // Состояние сценария
+  const state = {
+    step: 'phone', // 'phone' -> 'code' -> 'name' -> 'home'
+    phone: '',
+    name: 'Татьяна',
+    timerSeconds: 24,
+    timerId: null,
+    activeTab: 'trips'
+  };
+
+  const PROTOTYPE_CODE = '123456';
+
+  function resetToGuestScenario() {
+    clearInterval(state.timerId);
+    state.step = 'phone';
+    state.phone = '';
+    state.name = 'Татьяна';
+    document.getElementById('currentScenarioLabel').textContent = 'Гость не авторизован';
+    document.getElementById('protoDemoNote').textContent = '';
+    render();
+  }
+
+  function showToast(text) {
+    const toast = document.getElementById('appToast');
+    toast.textContent = text;
+    toast.classList.add('show');
+    clearTimeout(toast._timer);
+    toast._timer = setTimeout(() => {
+      toast.classList.remove('show');
+    }, 1800);
+  }
+
+  // --- ШАГ 1: Ввод номера телефона ---
+  function renderPhoneStep() {
+    document.getElementById('protoDemoNote').textContent = '';
+    return `
+      <div class="auth-view">
+        <header class="auth-header">
+          <span class="auth-brand-logo">ключи</span>
+        </header>
+
+        <div class="auth-main-content">
+          <div class="auth-intro">
+            <h1>У каждой поездки<br>свой характер</h1>
+          </div>
+
+          <!-- Векторная арт-лента путешествий -->
+          <div class="auth-art-box">
+            <svg class="auth-art-svg" viewBox="0 0 320 280" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <defs>
+                <linearGradient id="ribbonGrad1" x1="0%" y1="0%" x2="100%" y2="100%">
+                  <stop offset="0%" stop-color="#4f46e5"/>
+                  <stop offset="40%" stop-color="#2563eb"/>
+                  <stop offset="70%" stop-color="#38bdf8"/>
+                  <stop offset="100%" stop-color="#0284c7"/>
+                </linearGradient>
+                <linearGradient id="ribbonGrad2" x1="0%" y1="100%" x2="100%" y2="0%">
+                  <stop offset="0%" stop-color="#1d4ed8"/>
+                  <stop offset="50%" stop-color="#3b82f6"/>
+                  <stop offset="100%" stop-color="#60a5fa"/>
+                </linearGradient>
+                <linearGradient id="shadowGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+                  <stop offset="0%" stop-color="#1e3a8a" stop-opacity="0.4"/>
+                  <stop offset="100%" stop-color="#1e3a8a" stop-opacity="0"/>
+                </linearGradient>
+              </defs>
+              <!-- Волнообразная объемная лента -->
+              <path d="M40 70 C 110 30, 210 110, 270 60 C 310 30, 290 120, 240 160 C 180 210, 80 140, 45 200 C 20 240, 110 260, 180 250 C 260 240, 290 190, 295 180" 
+                    stroke="url(#ribbonGrad1)" stroke-width="42" stroke-linecap="round" fill="none"/>
+              <path d="M55 78 C 120 40, 205 115, 260 70 C 295 40, 275 125, 230 162 C 175 208, 85 142, 55 198" 
+                    stroke="url(#ribbonGrad2)" stroke-width="26" stroke-linecap="round" fill="none" opacity="0.9"/>
+              <!-- Блики и детали -->
+              <circle cx="270" cy="60" r="14" fill="#ffffff" opacity="0.35"/>
+              <circle cx="50" cy="200" r="10" fill="#38bdf8" opacity="0.4"/>
+              <circle cx="240" cy="160" r="18" fill="#ffffff" opacity="0.25"/>
+            </svg>
+          </div>
+
+          <p class="auth-caption">Подберём отель под ваши планы.</p>
+
+          <form class="auth-form" onsubmit="handlePhoneSubmit(event)">
+            <label for="phoneInput">Номер телефона</label>
+            <input id="phoneInput" class="auth-input-field" type="tel" placeholder="+7 (999) 000-00-00" 
+                   value="${state.phone}" oninput="handlePhoneInput(this)" autofocus required>
+            <div class="auth-error-msg" id="phoneError"></div>
+            <button type="submit" class="auth-btn-primary">Получить код</button>
+            <p class="auth-hint-sub">Вход и регистрация по коду из СМС</p>
+          </form>
+        </div>
+      </div>
+    `;
+  }
+
+  // Маска для телефона
+  function handlePhoneInput(input) {
+    document.getElementById('phoneError').textContent = '';
+    input.classList.remove('error');
+    
+    let val = input.value.replace(/\D/g, '');
+    if (val.startsWith('7') || val.startsWith('8')) val = val.substring(1);
+    
+    let formatted = '+7';
+    if (val.length > 0) formatted += ' (' + val.substring(0, 3);
+    if (val.length >= 3) formatted += ') ' + val.substring(3, 6);
+    if (val.length >= 6) formatted += '-' + val.substring(6, 8);
+    if (val.length >= 8) formatted += '-' + val.substring(8, 10);
+    
+    input.value = formatted;
+    state.phone = formatted;
+  }
+
+  function handlePhoneSubmit(e) {
+    e.preventDefault();
+    const clean = state.phone.replace(/\D/g, '');
+    if (clean.length < 11) {
+      const err = document.getElementById('phoneError');
+      err.textContent = 'Введите номер полностью';
+      document.getElementById('phoneInput').classList.add('error');
+      return;
+    }
+    state.step = 'code';
+    startTimer();
+    render();
+  }
+
+  // --- ШАГ 2: Ввод СМС-кода ---
+  function startTimer() {
+    clearInterval(state.timerId);
+    state.timerSeconds = 24;
+    state.timerId = setInterval(() => {
+      state.timerSeconds--;
+      const btn = document.getElementById('resendBtn');
+      if (btn) {
+        if (state.timerSeconds > 0) {
+          btn.textContent = `Новый код через ${state.timerSeconds} с`;
+          btn.disabled = true;
+        } else {
+          btn.textContent = 'Получить новый код';
+          btn.disabled = false;
+          clearInterval(state.timerId);
+        }
+      }
+    }, 1000);
+  }
+
+  function renderCodeStep() {
+    document.getElementById('protoDemoNote').textContent = `Код в прототипе: ${PROTOTYPE_CODE}`;
+    return `
+      <div class="auth-view">
+        <header class="auth-header">
+          <button type="button" class="auth-back-btn" onclick="goToStep('phone')" aria-label="Назад">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20"><path d="M19 12H5m7-7-7 7 7 7"/></svg>
+          </button>
+          <span class="auth-header-title">Вход в «Ключи»</span>
+        </header>
+
+        <div class="auth-main-content">
+          <div class="auth-intro">
+            <h1>Введите код</h1>
+            <p>Отправили СМС на номер</p>
+            <div class="auth-phone-preview">
+              <strong>${state.phone || '+7 (999) 123-45-67'}</strong>
+              <button type="button" class="auth-link-btn" onclick="goToStep('phone')">Изменить номер</button>
+            </div>
+          </div>
+
+          <form class="auth-form" onsubmit="handleCodeSubmit(event)" style="margin-top:20px;">
+            <label>Код из СМС</label>
+            <div class="otp-grid">
+              ${[0,1,2,3,4,5].map(i => `
+                <input class="otp-digit" type="text" inputmode="numeric" maxlength="1" 
+                       data-index="${i}" oninput="handleOtpInput(this, ${i})" onkeydown="handleOtpKey(event, ${i})">
+              `).join('')}
+            </div>
+            <div class="auth-error-msg" id="codeError"></div>
+            <button type="submit" class="auth-btn-primary">Подтвердить</button>
+            <button type="button" class="auth-resend-btn" id="resendBtn" disabled onclick="resendCode()">
+              Новый код через ${state.timerSeconds} с
+            </button>
+          </form>
+        </div>
+      </div>
+    `;
+  }
+
+  function handleOtpInput(input, index) {
+    document.getElementById('codeError').textContent = '';
+    const digits = document.querySelectorAll('.otp-digit');
+    
+    // Если пользователь вставил сразу весь код
+    if (input.value.length > 1) {
+      const chars = input.value.replace(/\D/g, '').split('');
+      chars.slice(0, 6).forEach((c, i) => {
+        if (digits[i]) digits[i].value = c;
+      });
+      digits[Math.min(chars.length, 5)].focus();
+      return;
+    }
+    
+    if (input.value && index < 5) {
+      digits[index + 1].focus();
+    }
+  }
+
+  function handleOtpKey(e, index) {
+    const digits = document.querySelectorAll('.otp-digit');
+    if (e.key === 'Backspace' && !digits[index].value && index > 0) {
+      digits[index - 1].focus();
+    }
+  }
+
+  function resendCode() {
+    startTimer();
+    const digits = document.querySelectorAll('.otp-digit');
+    digits.forEach(d => d.value = '');
+    digits[0].focus();
+  }
+
+  function handleCodeSubmit(e) {
+    e.preventDefault();
+    const digits = document.querySelectorAll('.otp-digit');
+    const entered = Array.from(digits).map(d => d.value).join('');
+    
+    if (entered.length < 6) {
+      document.getElementById('codeError').textContent = 'Введите все 6 цифр кода.';
+      return;
+    }
+    
+    if (entered !== PROTOTYPE_CODE) {
+      document.getElementById('codeError').textContent = `Неверный код. Введите ${PROTOTYPE_CODE}`;
+      return;
+    }
+
+    clearInterval(state.timerId);
+    state.step = 'name';
+    render();
+  }
+
+  // --- ШАГ 3: Имя пользователя ---
+  function renderNameStep() {
+    document.getElementById('protoDemoNote').textContent = '';
+    return `
+      <div class="auth-view">
+        <header class="auth-header">
+          <button type="button" class="auth-back-btn" onclick="goToStep('code')" aria-label="Назад">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20"><path d="M19 12H5m7-7-7 7 7 7"/></svg>
+          </button>
+          <span class="auth-header-title">Вход в «Ключи»</span>
+        </header>
+
+        <div class="auth-main-content">
+          <div class="auth-intro">
+            <h1>Как вас зовут?</h1>
+            <p>Достаточно вашего имени.</p>
+          </div>
+
+          <form class="auth-form" onsubmit="handleNameSubmit(event)" style="margin-top:24px;">
+            <label for="nameInput">Ваше имя</label>
+            <input id="nameInput" class="auth-input-field" type="text" placeholder="Например, Анна" 
+                   value="${state.name}" oninput="state.name=this.value" required autofocus>
+            <div class="auth-error-msg" id="nameError"></div>
+            <button type="submit" class="auth-btn-primary" style="margin-top:8px;">Начать путешествовать</button>
+          </form>
+        </div>
+      </div>
+    `;
+  }
+
+  function handleNameSubmit(e) {
+    e.preventDefault();
+    const nameVal = document.getElementById('nameInput').value.trim();
+    if (!nameVal) {
+      document.getElementById('nameError').textContent = 'Пожалуйста, введите имя';
+      return;
+    }
+    state.name = nameVal;
+    state.step = 'home';
+    document.getElementById('currentScenarioLabel').textContent = 'Брони ещё нет';
+    render();
+  }
+
+  function goToStep(step) {
+    state.step = step;
+    render();
+  }
+
+  // --- ШАГ 4: Главная страница (Search / Брони еще нет) ---
+  function renderHomeStep() {
+    document.getElementById('protoDemoNote').textContent = '';
+    const initial = (state.name && state.name[0]) ? state.name[0].toUpperCase() : 'Т';
+
+    return `
+      <div class="home-view">
+        <div class="home-scroll-area">
+          <!-- Верхняя плашка приложения -->
+          <div class="home-top-bar">
+            <button class="home-logo" type="button" onclick="showToast('Вы на главной')">ключи</button>
+            <div class="home-actions">
+              <button class="icon-circle-btn" type="button" onclick="showToast('Избранные отели')" title="Избранное">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1.1-1.1a5.5 5.5 0 0 0-7.8 7.8L12 21l8.8-8.6a5.5 5.5 0 0 0 0-7.8Z"/></svg>
+              </button>
+              <button class="icon-circle-btn" type="button" onclick="showToast('Уведомления')" title="Уведомления">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M5 17h14l-2-3V9a5 5 0 0 0-10 0v5l-2 3Zm5 3a2 2 0 0 0 4 0"/></svg>
+              </button>
+              <button class="home-avatar-btn" type="button" onclick="showToast('Профиль: ' + state.name)" title="Профиль">${initial}</button>
+            </div>
+          </div>
+
+          <!-- Приветствие -->
+          <div class="home-greeting-lead">Рады видеть вас, ${state.name} ✨</div>
+          <h1 class="home-greeting-h1">Куда отправимся?</h1>
+
+          <!-- Карточка "За новыми впечатлениями" -->
+          <article class="card-inspiration">
+            <div class="card-insp-title">За новыми впечатлениями</div>
+            <div class="visual-postcards">
+              <div class="postcard-item postcard-sea" onclick="showToast('Подборка: Ближе к морю')">
+                <span>Ближе к морю</span>
+              </div>
+              <div class="postcard-item postcard-city" onclick="showToast('Подборка: Без будильника')">
+                <span>Без будильника</span>
+              </div>
+            </div>
+            <div class="insp-bottom-row">
+              <div class="insp-desc">Цены напрямую от отелей<br>и баллы на будущие поездки.</div>
+              <button class="btn-find-hotel" type="button" onclick="showToast('Поиск отелей')">
+                Подобрать отель
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><path d="M5 12h14m-6-6 6 6-6 6"/></svg>
+              </button>
+            </div>
+          </article>
+
+          <!-- Карточка "Путешествуйте с друзьями" -->
+          <div class="card-referral" onclick="showToast('Реферальная программа: 500 баллов')">
+            <div class="referral-top">
+              <div class="ref-copy">
+                <strong>Путешествуйте с друзьями</strong>
+                <span>Пригласите друга — получите<br>500 бонусных баллов</span>
+              </div>
+              <svg class="ref-art-circles" viewBox="0 0 80 80" fill="none">
+                <circle cx="40" cy="40" r="34" stroke="currentColor" stroke-width="8" opacity="0.1" color="var(--color-brand)"/>
+                <circle cx="60" cy="18" r="16" fill="var(--color-brand)"/>
+                <circle cx="16" cy="58" r="13" fill="#38bdf8"/>
+              </svg>
+            </div>
+            <div class="ref-footer">
+              <span>Пригласить друзей</span>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><path d="m9 5 7 7-7 7"/></svg>
+            </div>
+          </div>
+
+          <!-- Карточка "Двойная выгода" -->
+          <div class="card-double-benefits" onclick="showToast('Программа привилегий «Ключей»')">
+            <div class="benefits-heading">Двойная выгода</div>
+            
+            <div class="benefit-item">
+              <div class="benefit-icon-box">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" width="20" height="20"><path d="M5 21V4a1 1 0 0 1 1-1h12a1 1 0 0 1 1 1v17M3 21h18M9 7h1m4 0h1M9 11h1m4 0h1M10 21v-6h4v6"/></svg>
+              </div>
+              <div class="benefit-copy">
+                <strong>От отеля</strong>
+                <span>Выгодные цены напрямую и привилегии по вашей программе лояльности.</span>
+              </div>
+            </div>
+
+            <div class="benefit-item">
+              <div class="benefit-icon-box">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" width="20" height="20"><rect x="3" y="8" width="18" height="4" rx="1"/><path d="M5 12v9h14v-9M12 8v13M12 8H8a3 3 0 1 1 3-3l1 3Zm0 0h4a3 3 0 1 0-3-3l-1 3Z"/></svg>
+              </div>
+              <div class="benefit-copy">
+                <strong>От «Ключей»</strong>
+                <span>Баллы за проживание — на скидку в следующей поездке.</span>
+              </div>
+            </div>
+
+            <div class="benefits-footer">
+              <span>Все преимущества</span>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><path d="m9 5 7 7-7 7"/></svg>
+            </div>
+          </div>
+        </div>
+
+        <!-- Нижняя панель навигации (таббар) -->
+        <nav class="bottom-nav-bar">
+          <button class="nav-tab-btn active" type="button" onclick="selectTab('trips', 'Вы в разделе «Поездки»')">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="5" y="7" width="14" height="14" rx="3"/><path d="M9 7V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v3M9 11v6m6-6v6"/></svg>
+            <span>Поездки</span>
+          </button>
+          <button class="nav-tab-btn" type="button" onclick="selectTab('search', 'Переход в раздел «Найти»')">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="10.5" cy="10.5" r="6.5"/><path d="m16 16 4.5 4.5"/></svg>
+            <span>Найти</span>
+          </button>
+          <button class="nav-tab-btn" type="button" onclick="selectTab('chats', 'Переход в раздел «Чаты»')">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M20 11.5a8 8 0 0 1-8 8H5l-3 2 1.5-5A8 8 0 1 1 20 11.5Z"/><path d="M7 10h9m-9 4h5"/></svg>
+            <span>Чаты</span>
+          </button>
+          <button class="nav-tab-btn" type="button" onclick="selectTab('bonuses', 'Переход в раздел «Выгоды»')">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="4" y="10" width="16" height="11" rx="2"/><path d="M12 7v14M3 7h18v4H3z"/><path d="M12 7C7 7 5 6 5 4a2 2 0 0 1 4-1l3 4Zm0 0c5 0 7-1 7-3a2 2 0 0 0-4-1l-3 4Z"/></svg>
+            <span>Выгоды</span>
+          </button>
+        </nav>
+      </div>
+    `;
+  }
+
+  function selectTab(tab, toastMsg) {
+    state.activeTab = tab;
+    document.querySelectorAll('.nav-tab-btn').forEach(btn => btn.classList.remove('active'));
+    event.currentTarget.classList.add('active');
+    showToast(toastMsg);
+  }
+
+  // Главный рендер
+  function render() {
+    const container = document.getElementById('phoneContainer');
+    if (state.step === 'phone') {
+      container.innerHTML = renderPhoneStep();
+      const input = document.getElementById('phoneInput');
+      if (input) input.focus();
+    } else if (state.step === 'code') {
+      container.innerHTML = renderCodeStep();
+      const firstOtp = document.querySelector('.otp-digit');
+      if (firstOtp) firstOtp.focus();
+    } else if (state.step === 'name') {
+      container.innerHTML = renderNameStep();
+      const nameInput = document.getElementById('nameInput');
+      if (nameInput) nameInput.focus();
+    } else if (state.step === 'home') {
+      container.innerHTML = renderHomeStep();
+    }
+  }
+
+  // Запуск первого экрана
+  render();
+</script>
+</body>
+</html>
